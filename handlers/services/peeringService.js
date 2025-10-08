@@ -664,7 +664,7 @@ export async function setPeeringSession(c, modify = false) {
           ipv6: _ipv6 || null,
           ipv6LinkLocal: _ipv6_link_local || null,
           type: _type,
-          extensions: JSON.stringify(extensions),
+          extensions: JSON.stringify(_extensions),
           interface: ifname,
           endpoint: _endpoint || null,
           credential: _credential || null,

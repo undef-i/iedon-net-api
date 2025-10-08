@@ -22,7 +22,25 @@ export async function useDbContext(app, dbSettings) {
     });
   }
 
-  const sequelize = new Sequelize(sequelizeOptions);
+  const sequelize = new Sequelize({
+    ...sequelizeOptions,
+    define: {
+      timestamps: false,
+      freezeTableName: true,
+    },
+    retry: {
+      max: 3,
+      match: [
+        'SQLITE_BUSY',
+        'SQLITE_LOCKED',
+        /deadlock/i,
+        /lock/i
+      ]
+    },
+    query: {
+      timeout: 30000
+    }
+  });
 
   // database entities
   const models = {};
@@ -46,12 +64,12 @@ export async function useDbContext(app, dbSettings) {
     await sequelize.sync({ alter: dbSettings.alter || false });
     await models.settings.bulkCreate(
       [
-        { key: "NET_NAME", value: "iEdon.dn42" },
+        { key: "NET_NAME", value: "Nedifinita Network" },
         {
           key: "NET_DESC",
-          value: "iEdon.dn42 is an experimental global network within DN42",
+          value: "Nedifinita Network is a global network within DN42",
         },
-        { key: "NET_ASN", value: "4242422189" },
+        { key: "NET_ASN", value: "4242420454" },
         { key: "MAINTENANCE_TEXT", value: "" },
         { key: "FOOTER_TEXT", value: "Powered by PeerAPI and Acorle" },
       ],

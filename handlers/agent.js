@@ -183,6 +183,22 @@ async function report(c) {
     return makeResponse(c, RESPONSE_CODE.BAD_REQUEST);
   }
 
+  // Log incoming metrics for debugging
+  c.var.app.logger
+    .getLogger("agent")
+    .info(`Received report with ${metrics.length} metrics from agent`);
+  
+  // Log detailed BGP status data for each metric
+  metrics.forEach((metric, index) => {
+    if (metric.bgp && Array.isArray(metric.bgp)) {
+      metric.bgp.forEach((bgpEntry, bgpIndex) => {
+        c.var.app.logger
+          .getLogger("agent")
+          .info(`Metric ${index} BGP ${bgpIndex}: uuid=${metric.uuid}, name=${bgpEntry.name}, state='${bgpEntry.state}', info='${bgpEntry.info}', since='${bgpEntry.since}', type=${bgpEntry.type}`);
+      });
+    }
+  });
+
   const maxRecordsToKeep =
     c.var.app.settings.metricSettings.maxRecordsToKeep || 288;
   const lockTimeout =
@@ -353,6 +369,10 @@ async function report(c) {
             c.var.app.logger
               .getLogger("app")
               .error(`Failed to save session data for ${metric.uuid}`);
+          } else {
+            c.var.app.logger
+              .getLogger("agent")
+              .info(`Saved session data for ${metric.uuid} with ${newMetricData.bgp?.length || 0} BGP entries`);
           }
 
           // Collect enum data for this ASN
@@ -370,6 +390,11 @@ async function report(c) {
                 };
               }) || [];
           }
+
+          // Log enum data for debugging
+          c.var.app.logger
+            .getLogger("agent")
+            .info(`Enum data for ASN ${metric.asn}: ${JSON.stringify(asnPeers[metric.uuid])}`);
 
           return { status: "fulfilled", uuid: metric.uuid };
         } finally {
@@ -416,6 +441,13 @@ async function report(c) {
     if (enumMap.size > 0) {
       const enumEntries = Array.from(enumMap.entries());
       const allEnumResults = [];
+
+      // Log all enum data before saving
+      enumEntries.forEach(([asn, dict]) => {
+        c.var.app.logger
+          .getLogger("agent")
+          .info(`Saving enum data for ASN ${asn}: ${JSON.stringify(dict)}`);
+      });
 
       for (let i = 0; i < enumEntries.length; i += BATCH_SIZE) {
         const batch = enumEntries.slice(i, i + BATCH_SIZE);

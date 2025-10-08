@@ -16,11 +16,11 @@ import { sendAuthMail } from "./services/mailService.js";
 /*
     "REQUEST": {
         "action": "query"
-        "asn": "4242422189"
+        "asn": "4242420454"
     },
     
     "RESPONSE": {
-        "person": "iEdon",
+        "person": "Nedifinita Network",
         "authState": "1a2b3c4d5e6f",
         "availableAuthMethods": [
             {

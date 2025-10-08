@@ -92,6 +92,13 @@ export const initModel = (sequelize) =>
         field: "credential",
         type: DataTypes.TEXT,
         allowNull: true,
+        comment: "WireGuard: JSON with {publicKey, psk?} or legacy format with just public key",
+      },
+      psk: {
+        field: "psk",
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: "Pre-shared key for WireGuard (deprecated, use credential field instead)",
       },
       data: {
         field: "data",

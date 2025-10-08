@@ -67,6 +67,7 @@ function setSecurityHeaders(c) {
 }
 
 function setCustomHeaders(c, customHeaders) {
+  if (!customHeaders) return;
   Object.entries(customHeaders).forEach(([key, value]) => c.header(key, value));
 }
 
